@@ -193,7 +193,7 @@
           .select('#black-rates-svg')
           .append('svg')
           .attr('width', (gridSize+gap)*(10))
-          .attr('height', 3150)
+          .attr('height', 3500)
 
         // Step 6. create SVG elements bound with data for black rates
         var blackDays = blackRatesChart
@@ -221,7 +221,7 @@
 
 
           blackDays.transition().duration(2000)
-          .delay((d,i)=> i*7)
+          .delay((d,i)=> i*5.5)
           .attr('width',20)
           .attr('height',20)
         
@@ -248,7 +248,7 @@
           .select('#auction-rates-svg')
           .append('svg')
           .attr('width', (gridSize+gap)*(10))
-          .attr('height', 3150)
+          .attr('height', 3500)
 
         // Step 6. create SVG elements bound with data for auction rates
         var auctionDays = auctionRatesChart
@@ -275,7 +275,7 @@
 
 
           auctionDays.transition().duration(2000)
-          .delay((d,i)=> i*7)
+          .delay((d,i)=> i*5.5)
           .attr('width',20)
           .attr('height',20)
           .style('fill',d=> {
