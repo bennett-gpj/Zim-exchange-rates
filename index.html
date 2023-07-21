@@ -35,6 +35,28 @@
       color: #1d1d1d;
     }
 
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    .left-image,
+    .right-image {
+      position: absolute;
+      top: 0;
+      width: 100px;
+      /* Adjust the width of the images as per your requirement */
+    }
+
+    .left-image {
+      left: 0;
+    }
+
+    .right-image {
+      right: 0;
+    }
+
+
     .font-secondary {
       font-family: 'Lora', serif !important;
     }
@@ -129,6 +151,22 @@
       @media (min-width: @screen-sm-min)
     }
 
+    .left-image,
+    .right-image {
+      position: absolute;
+      top: 0;
+      height: 51%;
+      width: 135px;
+    }
+
+    .left-image {
+      left: 0;
+    }
+
+    .right-image {
+      right: 0;
+    }
+
     .chart-container {
       max-width: 1000px;
       @media (min-width: @screen-sm-min) width: 100%;
@@ -185,16 +223,26 @@
   </style>
 
   <!-- add your d3 script -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
   <script>
     // .append('svg')
     // .attr('width', 800)
     // .attr('height', 4950)
 
+    var piyg = d3.scaleSequential(d3.interpolateRdYlGn);
+
     // Step 4. load your data with d3.csv()
-    d3.csv("Zim_black_rates.csv", function (data) {
+    d3.csv("bl_rates_change.csv").then(function(data) {
+
       // check if the data is loaded:
-      console.log(data)
+      data.forEach(d => {
+      d.change_dc = + d.change_dc;
+      })
+
+      console.log(data)      
+      const extent = d3.extent(data, d => d.change_dc);
+      console.log(extent)
+     const normalize = d3.scaleLinear().domain(extent).range([0,1])
 
       // == your code happens below ==
 
@@ -235,6 +283,9 @@
         .attr('height', 20)
 
         .style('fill', function (d) {
+    
+        return piyg(normalize(d.change_dc))
+
           if (d.Change == 'up') { return 'red' }
           if (d.Change == 'down') { return 'green' }
           if (d.Change == 'same') { return 'yellow' }
@@ -243,8 +294,8 @@
       // annotate charts
 
       blackRatesChart.append("line")
-        .style("stroke", "grey")
-        .style("stroke-width", 4)
+        .style("stroke", "black")
+        .style("stroke-width", 3)
         .attr("x1", 0)
         .attr("y1", 0)
         .attr("x2", 200)
@@ -267,9 +318,16 @@
 
 
     // Step 4. load your data for auction rates with d3.csv()
-    d3.csv("Zim_auction_rates.csv", function (data) {
-      // check if the data is loaded:
+    d3.csv("auc_rates_change.csv").then(function(data) {
+      data.forEach(d => {
+      d.change_dc = + d.change_dc;
+})
+    
       console.log(data)
+      
+      const extent = d3.extent(data, d => d.change_dc);
+      console.log(extent)
+    const normalize = d3.scaleLinear().domain(extent).range([0,1])
 
       // Step 7. Position the SVG shapes for black rates
       var gridSize = 20, gap = 2;
@@ -313,9 +371,8 @@
         .attr('width', 20)
         .attr('height', 20)
         .style('fill', d => {
-          if (d.Change == 'up') { return 'red' }
-          if (d.Change == 'down') { return 'green' }
-          if (d.Change == 'same') { return 'yellow' }
+        return piyg(normalize(d.change_dc))
+
 
           // Encode data onto the SVG shapes
         });
@@ -329,31 +386,35 @@
 
     }
 
-    function addBodyText(svg, x, y, fontsize, textLst){
-    let counter = 0;
-    for (var text of textLst) {
-      svg.append("text")
-        .attr("x", x)
-        .attr("y", y + (fontsize + 2) * counter)
-        .text(text)
-        // .attr("transform", "translate(-2.5, -2.5)")
-        // .style("font-family", "Rubik")
-        // .style("text-anchor", "left")
-        .style("font-size", fontsize)
+    function addBodyText(svg, x, y, fontsize, textLst) {
+      let counter = 0;
+      for (var text of textLst) {
+        svg.append("text")
+          .attr("x", x)
+          .attr("y", y + (fontsize + 2) * counter)
+          .text(text)
+          // .attr("transform", "translate(-2.5, -2.5)")
+          // .style("font-family", "Rubik")
+          // .style("text-anchor", "left")
+          .style("font-size", fontsize)
         // .style("fill", textColor);
 
-      counter = counter + 1;
-    }}
+        counter = counter + 1;
+      }
+    }
   </script>
-  <!-- <div class="image-container">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Flag_of_Zimbabwe_%28Variant%29.svg/800px-Flag_of_Zimbabwe_%28Variant%29.svg.png"></div>
-        </div> -->
+
 </head>
 
 <body>
   <div class="container landing">
+
+    <img class="left-image" src="Zim_flag_vert.png" alt="Left Image">
+    <img class="right-image" src="Zim_flag_vert.png" alt="Right Image">
+
     <div class="row justify-content-center">
       <div class="col-lg-9 col-11">
+
         <h3 class="text-h3 font-secondary mb-3" style="text-align: center;">Five years of economic trauma in Zimbabwe
         </h3>
         <p class="text-h4 font-secondary mb-3" style="font-size: 18px; text-align: center;">The Zimbabwean exchange rate
@@ -368,21 +429,18 @@
           to 1 USD:6800 ZWL.</p>
         <p class="text-h4 font-secondary mb-3" style="font-size: 14px; text-align: center; margin-top: 15px;">By Bennett
           Hanson</p>
-        <p> </p>
-        <div class="image-container">
-          <div id="Flag_of_Zimbabwe.svg"></div>
-        </div>
 
         <!-- body {
           background-image: url("trillion.jpg");
           background-repeat: repeat-y;
         } -->
-        
+
         <!-- //create div, rectangle, etc for legend here -->
 
         <!-- <div class="svg-container">
       <div id="auction-rates-svg"></div>
     </div> -->
+
         <div class="svg-container">
           <div id="black-rates-svg">
             <svg class="main_chart" width="800" height="4950"></svg>
