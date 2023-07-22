@@ -25,27 +25,31 @@
     .svg-container {
       display: inline-block;
       margin-right: 10px;
-      margin-left: 21px;
+      margin-left: 65px;
       text-align: center;
-      /* width: 45%; */
+      justify-content: center;
     }
 
     body {
       font-family: 'Poppins', sans-serif;
-      color: #1d1d1d;
-    }
-
-    body {
+      background-image: url('trillion_bk.svg');
+      background-size: auto;
+      background-repeat: repeat;
+      background-position: center center;
       margin: 0;
       padding: 0;
     }
+
+    .main-container {
+      background-color: #f0f0f0;
+    }
+
 
     .left-image,
     .right-image {
       position: absolute;
       top: 0;
       width: 100px;
-      /* Adjust the width of the images as per your requirement */
     }
 
     .left-image {
@@ -55,7 +59,6 @@
     .right-image {
       right: 0;
     }
-
 
     .font-secondary {
       font-family: 'Lora', serif !important;
@@ -102,27 +105,9 @@
         font-size: 16px;
         line-height: 24px;
       }
-    }
-
-    .blockquote {
-      font-size: 32px;
-      font-weight: 700;
-      line-height: 36px;
-      text-transform: uppercase;
-      text-align: center;
 
       @media (min-width: @screen-sm-min) {
         font-size: 28px;
-      }
-    }
-
-    .text-caption {
-      font-size: 14px;
-      line-height: 22px;
-
-      @media (min-width: @screen-sm-min) {
-        font-size: 12px;
-        line-height: 18px;
       }
     }
 
@@ -178,26 +163,6 @@
       display: inline-block;
     }
 
-    .caption {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background-color: rgba(0, 0, 0, 0.7);
-      color: #fff;
-      padding: 8px;
-    }
-
-    .caption-text {
-      font-size: 12px;
-      font-weight: bold;
-    }
-
-    .photo-credit {
-      font-size: 12px;
-      font-style: italic;
-    }
-
     .image-fade-container {
       position: relative;
       width: 100%;
@@ -225,24 +190,21 @@
   <!-- add your d3 script -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
   <script>
-    // .append('svg')
-    // .attr('width', 800)
-    // .attr('height', 4950)
 
     var piyg = d3.scaleSequential(d3.interpolateRdYlGn);
 
     // Step 4. load your data with d3.csv()
-    d3.csv("bl_rates_change.csv").then(function(data) {
+    d3.csv("bl_rates_change.csv").then(function (data) {
 
       // check if the data is loaded:
       data.forEach(d => {
-      d.change_dc = + d.change_dc;
+        d.change_dc = + d.change_dc;
       })
 
-      console.log(data)      
+      console.log(data)
       const extent = d3.extent(data, d => d.change_dc);
       console.log(extent)
-     const normalize = d3.scaleLinear().domain(extent).range([0,1])
+      const normalize = d3.scaleLinear().domain([-0.9905,1.5]).range([0, 1])
 
       // == your code happens below ==
 
@@ -251,6 +213,7 @@
 
       var blackRatesChart = d3
         .select('.main_chart')
+        .style("background", "#f0f0f0")
 
       // Step 6. create SVG elements bound with data for black rates
       var blackDays = blackRatesChart
@@ -267,7 +230,7 @@
           return 20 + Math.floor(i / 7) * (gridSize + gap);
         })
         .attr('x', function (d, i) {
-          return (i % 7) * (gridSize + gap);
+          return (i % 7) * (gridSize + gap) + 75;
         })
         .attr('width', gridSize)
         .attr('height', gridSize)
@@ -276,19 +239,23 @@
       blackDays.style('fill', 'black');
       blackDays.attr('width', 0).attr('height', 0);
 
-
       blackDays.transition().duration(2000)
         .delay((d, i) => i * 5.5)
         .attr('width', 20)
         .attr('height', 20)
+        .attr("change",function(d, i){
+          // console.log(d.change_dc)
+          // console.log(d)
+          return d.change_dc
+        })
 
         .style('fill', function (d) {
-    
-        return piyg(normalize(d.change_dc))
 
-          if (d.Change == 'up') { return 'red' }
-          if (d.Change == 'down') { return 'green' }
-          if (d.Change == 'same') { return 'yellow' }
+          return piyg(normalize(d.change_dc))
+
+          // if (d.Change == 'up') { return 'red' }
+          // if (d.Change == 'down') { return 'green' }
+          // if (d.Change == 'same') { return 'yellow' }
         });
 
       // annotate charts
@@ -314,30 +281,26 @@
       let arr = ["hello", "world"]
       addBodyText(blackRatesChart, 500, 500, 12, arr)
 
+      // #append rect, do annotations addbodytext
+      
     });
 
-
-    // Step 4. load your data for auction rates with d3.csv()
-    d3.csv("auc_rates_change.csv").then(function(data) {
+    // Step 4. load data for auction rates with d3.csv()
+    d3.csv("auc_rates_change.csv").then(function (data) {
       data.forEach(d => {
-      d.change_dc = + d.change_dc;
-})
-    
+        d.change_dc = + d.change_dc;
+      })
+
       console.log(data)
-      
+
       const extent = d3.extent(data, d => d.change_dc);
       console.log(extent)
-    const normalize = d3.scaleLinear().domain(extent).range([0,1])
+      const normalize = d3.scaleLinear().domain([-0.9905,1.5]).range([0, 1])
 
       // Step 7. Position the SVG shapes for black rates
       var gridSize = 20, gap = 2;
 
       // Step 5. create an SVG container for auction rates / change auctionrateschart to blackrates chart to draw on same svg
-      // var auctionRatesChart = d3
-      //   .select('#auction-rates-svg')
-      //   .append('svg')
-      //   .attr('width', (gridSize+gap)*(10))
-      //   .attr('height', 4950)
 
       var blackRatesChart = d3
         .select('.main_chart')
@@ -356,7 +319,7 @@
           return 20 + Math.floor(i / 7) * (gridSize + gap);
         })
         .attr('x', function (d, i) {
-          return (i % 7) * (gridSize + gap) + 300;
+          return (i % 7) * (gridSize + gap) + 500;
         })
         .attr('width', gridSize)
         .attr('height', gridSize)
@@ -365,16 +328,14 @@
       auctionDays.style('fill', 'black');
       auctionDays.attr('width', 0).attr('height', 0);
 
-
       auctionDays.transition().duration(2000)
         .delay((d, i) => i * 5.5)
         .attr('width', 20)
         .attr('height', 20)
+        .attr("change",(d)=>d.change_dc)
         .style('fill', d => {
-        return piyg(normalize(d.change_dc))
+          return piyg(normalize(d.change_dc))
 
-
-          // Encode data onto the SVG shapes
         });
     });
 
@@ -383,7 +344,6 @@
       var gapHeight = (gridRows - 1) * gap;
       var totalHeight = gridRows * gridSize + gapHeight;
       return totalHeight;
-
     }
 
     function addBodyText(svg, x, y, fontsize, textLst) {
@@ -407,7 +367,8 @@
 </head>
 
 <body>
-  <div class="container landing">
+
+  <div class="main-container">
 
     <img class="left-image" src="Zim_flag_vert.png" alt="Left Image">
     <img class="right-image" src="Zim_flag_vert.png" alt="Right Image">
@@ -415,41 +376,36 @@
     <div class="row justify-content-center">
       <div class="col-lg-9 col-11">
 
-        <h3 class="text-h3 font-secondary mb-3" style="text-align: center;">Five years of economic trauma in Zimbabwe
+        <h3 class="text-h3 font-secondary mb-3" style="text-align: center; margin-top: 20px;">Five years of economic trauma in Zimbabwe
         </h3>
-        <p class="text-h4 font-secondary mb-3" style="font-size: 18px; text-align: center;">The Zimbabwean exchange rate
-          has been published by the central bank on a near-daily basis since October 2018. Below, I show every day the
-          Zimbabwean dollar's exchange rate was published — the official rate is on the left and the black market rate —
-          which is almost always higher — on the right. Each square shows whether the currency's value went down (red),
-          up (green) or stayed the same (yellow) since the last time the rates were published.</p>
+        <p class="text-h4 font-secondary mb-3" style="font-size: 18px; text-align: center;">The Zimbabwean exchange
+          rate has been published by the central bank on a near-daily basis since October 2018. Below, I show every day
+          the Zimbabwean dollar's exchange rate was published — the official rate is on the left and the black market rate
+          — which is almost always higher — on the right. Each square shows whether the currency's value went down
+          (red), up (green) or stayed the same (yellow) since the last time the rates were published.</p>
         <p class="text-h4 font-secondary mb-3" style="font-size: 18px; text-align: center;">As you scroll, imagine how
           your mood would be affected each day when you scan the news.</p>
         <p class="text-h4 font-secondary mb-3" style="font-size: 18px; text-align: center;">The journey begins on Oct.
-          15, 2018 when the black market exchange rate was 1 USD:2.2 ZWL, and goes to July 17, 2023, when it had fallen
-          to 1 USD:6800 ZWL.</p>
-        <p class="text-h4 font-secondary mb-3" style="font-size: 14px; text-align: center; margin-top: 15px;">By Bennett
-          Hanson</p>
+          15, 2018 when the black market exchange rate was 1 USD:2.2 ZWL, and goes to July 17, 2023, when it had
+          fallen to 1 USD:6800 ZWL.</p>
+        <p class="text-h4 font-secondary mb-3" style="font-size: 14px; text-align: center; margin-top: 15px;">
+          By Bennett Hanson</p>
+      </div>
 
-        <!-- body {
-          background-image: url("trillion.jpg");
-          background-repeat: repeat-y;
-        } -->
+      <div style="background-image: url('trillion_bk.svg'); max-width:100%; width:100%">
 
-        <!-- //create div, rectangle, etc for legend here -->
+          <!-- #legend here -->
 
-        <!-- <div class="svg-container">
-      <div id="auction-rates-svg"></div>
-    </div> -->
-
-        <div class="svg-container">
-          <div id="black-rates-svg">
-            <svg class="main_chart" width="800" height="4950"></svg>
+          <div class="svg-container justify-content-center">
+            <div id="black-rates-svg">
+              <svg class="main_chart" width="800" height="5050"></svg>
+            </div>
           </div>
-        </div>
-        <div p class="text-h4 font-secondary mb-3" style="font-size: 18px; text-align: center; margin-top: 15px;">To
-          read more about this project, see the <a href="https://github.com/bennett-gpj/Zim-exchange-rates">Github
-            page</a>.</p>
-        </div>
+          <div p class="text-h4 font-secondary mb-3" style="font-size: 18px; text-align: center; margin-top: 15px;">To
+            read more about this project, see the <a href="https://github.com/bennett-gpj/Zim-exchange-rates">Github
+              page</a>.</p>
+          </div>
+      </div>
 </body>
 
 </html>
